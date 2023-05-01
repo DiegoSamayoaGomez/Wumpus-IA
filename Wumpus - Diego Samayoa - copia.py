@@ -2,11 +2,12 @@ import pygame
 import numpy as np
 import threading
 import heapq
+import ctypes  # An included library with Python install.   
 
 #### ---CONSTANTES---###
 # Colores para tablero y participantes
 WHITE = (255, 255, 255)  # CASILLA FONDO 0
-GREEN = (153, 255, 102)  # CAZADOR 1
+GREEN = (200,230,201)  # CAZADOR 1
 
 PURPLE = (102, 102, 255)  # POZO 2
 LIGHTPURPLE = (179, 179, 255)  # BRISA POZO 6
@@ -61,6 +62,7 @@ reservarPosiciones = np.random.permutation(reservarPosiciones)
 
 # Generamos el número 2 dos veces en posiciones aleatorias 
 pos_2 = np.unravel_index(reservarPosiciones[0:2], (10, 10))
+#pos_2 = np.unravel_index(np.random.choice(reservarPosiciones, size=6, replace=False), (10, 10))
 grid[pos_2] = 2
 pos_2_guardadas = pos_2
 print("Los pozos están en: ", pos_2)
@@ -116,13 +118,17 @@ def dibujar():
 
     for row in range(10):        
         for column in range(10):            
-            color = WHITE # Color de fondo de tablero
+            
+            color = GREEN # Color de fondo de tablero
             pygame.draw.rect(screen,
                              color,
                              [(MARGIN + WIDTH) * column + MARGIN,
                               (MARGIN + HEIGHT) * row + MARGIN,
                               WIDTH,
                               HEIGHT])
+            
+            #pozo_image = pygame.image.load('monte.png').convert_alpha()
+            #screen.blit(pozo_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN))
  
 
             if grid[row][column] == 2:  # POZO BRISA 6
@@ -140,10 +146,12 @@ def dibujar():
                     grid[row-1][column] = 6
                 if row < 9:  # ABAJO
                     grid[row+1][column] = 6
-'''
+
             elif grid[row][column] == 3:  # WUMPUS OLOR 7
-                color = BLUE
+                #color = BLUE
                 #wumpus = pygame.image.load("wumpus.png").convert_alpha()
+                wumpus_image = pygame.image.load('wumpus.png').convert_alpha()
+                screen.blit(wumpus_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN))
                 wumpus.append(row)
                 wumpus.append(column)
 
@@ -157,20 +165,30 @@ def dibujar():
                     grid[row+1][column] = 7
 
             elif grid[row][column] == 4:  # ORO
-                color = YELLOW
+                #color = YELLOW
+                gold_image = pygame.image.load('Oro.png').convert_alpha()
+                screen.blit(gold_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN))
                 oro.append(row)
                 oro.append(column)
                 
             elif grid[row][column] == 6:  # PESTILENCIA
-                color = LIGHTPURPLE
+                #color = LIGHTPURPLE
+                pestilanecia_image = pygame.image.load('Neblina.png').convert_alpha()
+                screen.blit(pestilanecia_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN))               
 
             elif grid[row][column] == 7:  # BRISA
-                color = LIGHTBLUE
+                #color = LIGHTBLUE
+                brisa_image = pygame.image.load('OlorPozo.png').convert_alpha()
+                screen.blit(brisa_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN)) 
+                
 
             elif grid[row][column] == 9:  # BRISA
-                color = RED #RASTROS
+                #color = RED
+                piedra_image = pygame.image.load('Piedra.png').convert_alpha()
+                screen.blit(piedra_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN))  
+                #RASTROS
             # Dibujo de cada cuadro en tablero según el color y dimensiones
-'''
+
           
 def dibujarCazador():
     imagen = None
@@ -199,6 +217,7 @@ def derecha():
         grid[cazador[1]][cazador[0]+1] = 1  # Dibujar nuevo
         cazador[0] = cazador[0]+1  # Acumular posición
         reposicionar()
+        if (cazador[0] == oro[1] and cazador[1] == oro[0]): print("GANASTE")      
 
 # Función para mover a la izquierda
 def izquierda():
@@ -207,6 +226,7 @@ def izquierda():
         grid[cazador[1]][cazador[0]-1] = 1  # Dibujar nuevo
         cazador[0] = cazador[0]-1  # Acumular posición
         reposicionar()
+        if (cazador[0] == oro[1] and cazador[1] == oro[0]): print("GANASTE")  
         
 
 
@@ -217,6 +237,8 @@ def abajo():
         grid[cazador[1]+1][cazador[0]] = 1  # Dibujar nuevo
         cazador[1] = cazador[1]+1  # Acumular posición
         reposicionar()
+        if (cazador[0] == oro[1] and cazador[1] == oro[0]): print("GANASTE")  
+        
 
 # Función para mover hacia arriba
 def arriba():
@@ -225,6 +247,7 @@ def arriba():
         grid[cazador[1]-1][cazador[0]] = 1  # Dibujar nuevo
         cazador[1] = cazador[1]-1  # Acumular posición
         reposicionar()
+        if (cazador[0] == oro[1] and cazador[1] == oro[0]): print("GANASTE")  
 
 
         #Actualizar pantalla y dibujar nueva posición
@@ -242,6 +265,7 @@ def reposicionar ():
     grid[pos_4_guardadas]=4
 
 
+    
 def recorridoAutomatico():
     for x in range(5):
         for y in range(9):
@@ -385,6 +409,7 @@ def mover_objeto(path_invertido):
             print("abajo")
             abajo()
 
+
 # -------- Loop principal -----------
 while not done:
     keys = pygame.key.get_pressed()  # Almacenar información de tecla presionada
@@ -401,6 +426,7 @@ while not done:
             # Imprimir coordenadas de pixeles y ejes X Y al hacer click
             print("Click ", pos, "Coordenadas de tablero: ", row, column)
 
+
     # ----- Controles de juego -----#
 
         
@@ -416,6 +442,8 @@ while not done:
         # Al presionar la tecla de flecha arriba se llama la función arriba() la cual mueve el cuadro en dicha posición
         elif keys[pygame.K_UP]:
             arriba()
+        elif keys[pygame.K_p]:
+            ctypes.windll.user32.MessageBoxW(0, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.!", "Instrucciones", 0)
 
         elif keys[pygame.K_s]:
             mover_objeto(path_invertido)
