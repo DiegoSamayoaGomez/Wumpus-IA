@@ -43,6 +43,8 @@ grid = np.zeros((10, 10))
 # Inserta el valor 1 en la posición indicada lo que indicará al tablero de dibujar al cazador
 grid[0, 0] = 1
 
+ # ----- Excluir posiciones de aparición de objetos -----#
+
 # Generamos una lista de posibles posiciones aleatorias para los números 2, 3 y 4
 reservarPosiciones = list(range(10*10-9))
 reservarPosiciones.remove(0) # Excluir la posición (0,0)
@@ -59,6 +61,8 @@ reservarPosiciones.remove(22) # Excluir la posición (2,2)
 
 reservarPosiciones = np.random.permutation(reservarPosiciones)
 #print(reservarPosiciones)
+
+ # ----- Generación de objetos en el juego -----#
 
 # Generamos el número 2 dos veces en posiciones aleatorias 
 pos_2 = np.unravel_index(reservarPosiciones[0:2], (10, 10))
@@ -80,8 +84,11 @@ pos_4_guardadas = pos_4
 print("El oro está en: ", pos_4)
 pos4_tupla = tuple(pos_4)
 
+
 # Imprimir tablero
 print(grid)
+
+ # ----- Dimensiones de tablero -----#
 
 # Establece el ancho y alto del tablero (10 cuadros de 64 pixeles = 640)
 WINDOW_SIZE = [640, 640]
@@ -100,10 +107,7 @@ running = True
 traversing = False
 traversal_thread = None
 
-running = True
-traversing = False
-traversal_thread = None
-
+ # ----- Dibujo de tablero y objetos del juego -----#
 # Dibujo de la cuadricula del tablero en base al ancho y alto de los cuadros
 def dibujarCuadricula(screen):
     for i in range(10):
@@ -112,8 +116,7 @@ def dibujarCuadricula(screen):
         pygame.draw.line(screen, BLACK, (0, new_height), (640, new_height), 1)
         pygame.draw.line(screen, BLACK, (new_width, 0), (new_width, 640), 1)
 
-
-
+#Dibujo del tablero
 def dibujar():
 
     for row in range(10):        
@@ -128,8 +131,7 @@ def dibujar():
                               HEIGHT])
             
             #pozo_image = pygame.image.load('monte.png').convert_alpha()
-            #screen.blit(pozo_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN))
- 
+            #screen.blit(pozo_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN)) 
 
             if grid[row][column] == 2:  # POZO BRISA 6
                 #color = PURPLE
@@ -173,12 +175,12 @@ def dibujar():
                 
             elif grid[row][column] == 6:  # PESTILENCIA
                 #color = LIGHTPURPLE
-                pestilanecia_image = pygame.image.load('Neblina.png').convert_alpha()
+                pestilanecia_image = pygame.image.load('OlorPozo.png').convert_alpha()
                 screen.blit(pestilanecia_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN))               
 
             elif grid[row][column] == 7:  # BRISA
                 #color = LIGHTBLUE
-                brisa_image = pygame.image.load('OlorPozo.png').convert_alpha()
+                brisa_image = pygame.image.load('Neblina.png').convert_alpha()
                 screen.blit(brisa_image, ((MARGIN + WIDTH) * column + MARGIN, (MARGIN + HEIGHT) * row + MARGIN)) 
                 
 
@@ -189,7 +191,6 @@ def dibujar():
                 #RASTROS
             # Dibujo de cada cuadro en tablero según el color y dimensiones
 
-          
 def dibujarCazador():
     imagen = None
     for row in range(10):
@@ -206,10 +207,7 @@ def dibujarCazador():
                 cazador.append(column) #[1]
             # Dibujar la imagen encima del cuadro si corresponde
 
-                
-
-# Función que dibuja un cuadro en la posición derecha, elimina el cuadro en la posición antigua y acumula la posición
-
+ # ----- Funciones de movimiento del cazador -----#
 # Función para mover a la derecha
 def derecha():
     if cazador[0] < 9:
@@ -228,8 +226,6 @@ def izquierda():
         reposicionar()
         if (cazador[0] == oro[1] and cazador[1] == oro[0]): print("GANASTE")  
         
-
-
 # Función para mover hacia abajo
 def abajo():
     if cazador[1] < 9:
@@ -263,7 +259,6 @@ def reposicionar ():
     grid[pos_2_guardadas]=2
     grid[pos_3_guardadas]=3
     grid[pos_4_guardadas]=4
-
 
     
 def recorridoAutomatico():
@@ -409,7 +404,23 @@ def mover_objeto(path_invertido):
             print("abajo")
             abajo()
 
+ # ----- Mensajes de bienvenida -----#
+def bienvenida():
+    message = """En primera casilla se encuentra el cazador, para ganar tienes que conseguir el oro, pero ten cuidado con los pozos y el wumpus ya que si te topas con ellos perderás el juego.
 
+CONTROLES: 
+Flecha derecha: mueve al cazador una posición a la derecha
+Flecha abajo: mueve al cazador una posición hacia abajo
+Flecha izquierda: mueve al cazador una posición a la izquierda
+Flecha arriba: mueve al cazador una posición hacia arriba
+
+Tecla ESPACIO: recorre automáticamente el tablero
+Tecla S: encuentra automáticamente el camino más corto hacía el objetivo
+Teclado P: muestra de nuevo este mensaje
+"""
+    ctypes.windll.user32.MessageBoxW(0, message, "Bienvenido, toma las instrucciones", 0)
+
+bienvenida()
 # -------- Loop principal -----------
 while not done:
     keys = pygame.key.get_pressed()  # Almacenar información de tecla presionada
@@ -426,9 +437,7 @@ while not done:
             # Imprimir coordenadas de pixeles y ejes X Y al hacer click
             print("Click ", pos, "Coordenadas de tablero: ", row, column)
 
-
     # ----- Controles de juego -----#
-
         
         # Al presionar la tecla de flecha derecha se llama la función derecha() la cual mueve el cuadro en dicha posición
         elif keys[pygame.K_RIGHT]:
@@ -443,7 +452,7 @@ while not done:
         elif keys[pygame.K_UP]:
             arriba()
         elif keys[pygame.K_p]:
-            ctypes.windll.user32.MessageBoxW(0, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.!", "Instrucciones", 0)
+            bienvenida()
 
         elif keys[pygame.K_s]:
             mover_objeto(path_invertido)
@@ -467,7 +476,8 @@ while not done:
                     traversing = False
 
             # Al presionar la tecla espacio se inicia el movimiento automático del juego
-
+     
+    # ----- Dibujar objetos de juego -----#
 
     # Establer color de fondo de pantalla
     screen.fill(BLACK)
