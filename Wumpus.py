@@ -3,6 +3,8 @@ import numpy as np
 import threading
 import heapq
 import ctypes  # An included library with Python install.   
+import sys
+import subprocess
 
 #### ---CONSTANTES---###
 # Colores para tablero y participantes
@@ -416,9 +418,16 @@ Flecha arriba: mueve al cazador una posición hacia arriba
 
 Tecla ESPACIO: recorre automáticamente el tablero
 Tecla S: encuentra automáticamente el camino más corto hacía el objetivo
-Teclado P: muestra de nuevo este mensaje
+Tecla P: muestra de nuevo este mensaje
+Tecla X: reinicia el juego y crea un nuevo tablero
 """
     ctypes.windll.user32.MessageBoxW(0, message, "Bienvenido, toma las instrucciones", 0)
+
+def reiniciarjuego():   
+    pygame.QUIT
+    python = sys.executable
+    subprocess.Popen([python] + sys.argv)
+    sys.exit()
 
 bienvenida()
 # -------- Loop principal -----------
@@ -453,6 +462,9 @@ while not done:
             arriba()
         elif keys[pygame.K_p]:
             bienvenida()
+
+        elif keys[pygame.K_x]:
+            reiniciarjuego()
 
         elif keys[pygame.K_s]:
             mover_objeto(path_invertido)
